@@ -48,7 +48,7 @@ publishing:
   github:
     enabled: true
     token_env: "GITHUB_TOKEN"
-    repo: "username/ai-news-digest"  # Change to your repo
+    repo: "ArielleTolome/ai-news-digest"  # Change to your repo
     branch: "main"
     local_repo_path: "./github_repo"
 

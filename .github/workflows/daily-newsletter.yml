@@ -76,7 +76,7 @@ jobs:
       - name: Checkout GitHub Pages repo
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/ai-news-digest
+          repository: ArielleTolome/ai-news-digest
           token: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Download Newsletter

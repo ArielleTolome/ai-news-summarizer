@@ -26,7 +26,7 @@ An automated, modular, and scalable AI-powered news summarization system using D
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ai-news-summarizer.git
+git clone https://github.com/ArielleTolome/ai-news-summarizer.git
 cd ai-news-summarizer
 ```
 
