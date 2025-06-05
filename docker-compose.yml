@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  ai-news-summarizer:
+    build: .
+    container_name: ai-news-summarizer
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - TWITTER_API_KEYS=${TWITTER_API_KEYS}
+    volumes:
+      - ./output:/app/output
+      - ./cache:/app/cache
+      - ./metrics:/app/metrics
+      - ./github_repo:/app/github_repo
+      - ./config:/app/config:ro
+      - ./templates:/app/templates:ro
+    command: python run.py --scheduled
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Redis for distributed caching
+  redis:
+    image: redis:7-alpine
+    container_name: ai-news-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+  # Optional: Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ai-news-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  prometheus_data:

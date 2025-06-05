@@ -1,0 +1,107 @@
+niche: "AI"  # Can be changed to "crypto", "music", etc.
+
+sources:
+  rss_feeds:
+    - url: "https://www.technologyreview.com/feed/"
+      name: "MIT Technology Review"
+      max_articles: 10
+      fetch_full_content: true
+    - url: "https://techcrunch.com/category/artificial-intelligence/feed/"
+      name: "TechCrunch AI"
+      max_articles: 10
+      fetch_full_content: false
+    - url: "https://venturebeat.com/ai/feed/"
+      name: "VentureBeat AI"
+      max_articles: 10
+      fetch_full_content: false
+    
+  web_scraping:
+    - url: "https://www.theverge.com/ai-artificial-intelligence"
+      name: "The Verge AI"
+      max_articles: 5
+      selectors:
+        articles: "article h2 a"  # CSS selector for article links
+        title: "h1.c-page-title"
+        content: "div.c-entry-content"
+        author: "span.c-byline__author-name"
+        date: "time"
+
+summarization:
+  api_key_env: "ANTHROPIC_API_KEY"  # Using Claude API
+  provider: "anthropic"
+  model: "claude-3-opus-20240229"
+  temperature: 0.7
+  max_articles_per_run: 20
+  max_tokens: 2000
+
+publishing:
+  markdown:
+    enabled: true
+    output_dir: "./output"
+    template_dir: "./templates"
+    
+  twitter:
+    enabled: false
+    api_keys_env: "TWITTER_API_KEYS"
+    thread_delimiter: "🧵"
+    
+  github:
+    enabled: true
+    token_env: "GITHUB_TOKEN"
+    repo: "username/ai-news-digest"  # Change to your repo
+    branch: "main"
+    local_repo_path: "./github_repo"
+
+schedule:
+  frequency: "daily"  # or "weekly"
+  time: "09:00"
+
+# Scraper configuration
+rate_limit_delay: 1.0  # Seconds between requests
+timeout: 30  # Request timeout in seconds
+user_agent: "Mozilla/5.0 (compatible; AI-News-Bot/1.0; +https://github.com/username/ai-news-summarizer)"
+
+# Cache configuration
+cache_dir: "./cache"
+cache_ttl_days: 7
+
+# Quality scoring thresholds
+quality_scoring:
+  min_content_length: 100  # Minimum characters for valid article
+  relevance_keywords:  # Keywords to boost relevance score
+    - "artificial intelligence"
+    - "machine learning"
+    - "deep learning"
+    - "neural network"
+    - "AI"
+    - "ML"
+    - "LLM"
+    - "GPT"
+    - "transformer"
+
+# Multi-language support
+languages:
+  - "en"  # Currently only English
+  
+# Analytics
+analytics:
+  enabled: true
+  metrics_file: "./metrics/pipeline_metrics.json"
+  
+# Email newsletter (optional)
+email:
+  enabled: false
+  provider: "sendgrid"  # or "mailgun"
+  api_key_env: "EMAIL_API_KEY"
+  from_email: "news@yourdomain.com"
+  from_name: "AI News Digest"
+  subscriber_list_id: "your-list-id"
+  
+# Webhook support
+webhooks:
+  enabled: false
+  endpoints:
+    - url: "https://your-webhook-endpoint.com/newsletter"
+      events: ["pipeline_complete", "pipeline_error"]
+      headers:
+        Authorization: "Bearer your-token"

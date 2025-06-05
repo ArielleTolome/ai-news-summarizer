@@ -1,0 +1,94 @@
+name: Daily AI Newsletter
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+    inputs:
+      niche:
+        description: 'News niche (AI, Crypto, Music, etc.)'
+        required: false
+        default: 'AI'
+      max_articles:
+        description: 'Maximum articles to process'
+        required: false
+        default: '20'
+
+jobs:
+  generate-newsletter:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Dagger CLI
+        run: |
+          cd /usr/local
+          curl -L https://dl.dagger.io/dagger/install.sh | sudo sh
+          
+      - name: Login to Dagger Cloud
+        env:
+          DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
+        run: |
+          dagger login --token $DAGGER_CLOUD_TOKEN
+      
+      - name: Run Newsletter Pipeline
+        env:
+          NICHE: ${{ github.event.inputs.niche || 'AI' }}
+          MAX_ARTICLES: ${{ github.event.inputs.max_articles || '20' }}
+        run: |
+          dagger call run-pipeline \
+            --anthropic-key=secret:anthropic-key \
+            --niche="${NICHE}" \
+            --max-articles=${MAX_ARTICLES} \
+            --publish-to-github=true \
+            --github-token=secret:github-token
+      
+      - name: Upload Newsletter Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: newsletter-${{ github.run_number }}
+          path: output/*.md
+          retention-days: 30
+      
+      - name: Notify Success
+        if: success()
+        run: |
+          echo "✅ Newsletter generated successfully!"
+          echo "View the output in the artifacts section."
+      
+      - name: Notify Failure
+        if: failure()
+        run: |
+          echo "❌ Newsletter generation failed!"
+          echo "Check the logs for details."
+
+  publish-to-github-pages:
+    needs: generate-newsletter
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Checkout GitHub Pages repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/ai-news-digest
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Download Newsletter
+        uses: actions/download-artifact@v3
+        with:
+          name: newsletter-${{ github.run_number }}
+          path: ./content/newsletters/
+          
+      - name: Commit and Push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Add newsletter - Run #${{ github.run_number }}"
+          git push

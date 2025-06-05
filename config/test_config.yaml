@@ -1,0 +1,25 @@
+niche: AI
+publishing:
+  github:
+    enabled: false
+  markdown:
+    enabled: true
+    output_dir: ./output
+    template_dir: ./templates
+  twitter:
+    enabled: false
+rate_limit_delay: 1.0
+sources:
+  rss_feeds:
+  - fetch_full_content: false
+    max_articles: 3
+    name: TechCrunch AI
+    url: https://techcrunch.com/category/artificial-intelligence/feed/
+  web_scraping: []
+summarization:
+  api_key_env: ANTHROPIC_API_KEY
+  max_articles_per_run: 3
+  model: claude-3-opus-20240229
+  provider: anthropic
+  temperature: 0.7
+timeout: 30

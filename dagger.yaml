@@ -1,0 +1,4 @@
+name: ai-news-summarizer
+sdk: python
+source: ./src
+engineVersion: v0.18.9
